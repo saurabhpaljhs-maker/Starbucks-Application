@@ -26,6 +26,16 @@ pipeline {
             }
         }
 
+        stage('Docker Permission Check') {
+            steps {
+                sh '''
+                whoami
+                groups
+                docker ps
+                '''
+            }
+        }
+
         stage('Install NPM Dependencies') {
             steps {
                 sh 'npm install'
@@ -44,10 +54,10 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image to DockerHub') {
+        stage('Push Docker Image') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                    withDockerRegistry(credentialsId: 'docker') {
                         sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
                     }
                 }
@@ -57,7 +67,7 @@ pipeline {
 
     post {
         success {
-            echo 'Docker Image Successfully Pushed to DockerHub'
+            echo 'Pipeline Completed Successfully'
         }
 
         failure {
