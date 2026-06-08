@@ -7,8 +7,8 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = "sauraabh/starbucks"
-        IMAGE_TAG = "latest"
+        DOCKER_IMAGE = "sauraabh/starbucks"
+        DOCKER_TAG = "latest"
     }
 
     stages {
@@ -22,17 +22,7 @@ pipeline {
         stage('Git Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/saurabhpaljhs-maker/Starbucks-Application.git'
-            }
-        }
-
-        stage('Docker Permission Check') {
-            steps {
-                sh '''
-                whoami
-                groups
-                docker ps
-                '''
+                url: 'https://github.com/saurabhpaljhs-maker/Starbucks-Application.git'
             }
         }
 
@@ -50,15 +40,15 @@ pipeline {
 
         stage('Tag Docker Image') {
             steps {
-                sh "docker tag starbucks ${IMAGE_NAME}:${IMAGE_TAG}"
+                sh "docker tag starbucks ${DOCKER_IMAGE}:${DOCKER_TAG}"
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Push Docker Image to DockerHub') {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker') {
-                        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                        sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
                     }
                 }
             }
@@ -67,11 +57,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline Completed Successfully'
+            echo 'Docker Image pushed successfully!'
         }
-
         failure {
-            echo 'Pipeline Failed'
+            echo 'Pipeline failed!'
         }
     }
 }
